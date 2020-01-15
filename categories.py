@@ -38,16 +38,15 @@ class Categories:
             ))
         return categories_result
 
+    def get_all_categories(self) -> List[Category]:
+        """Return reference book of all categories with aliases"""
+        return self._categories
+
     def get_category(self, category_name: str) -> Category:
         """Returns category by its aliases"""
         found = None
-        other_category = None
         for category in self._categories:
-            if category.codename == "other":
-                other_category = category
             for alias in category.aliases:
                 if category_name in alias:
                     found = category
-        if not found:
-            found = other_category
         return found

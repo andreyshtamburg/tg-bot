@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Dict
 
 import pytz
 
@@ -48,17 +48,22 @@ def add_expense(input_message: str) -> Expense:
     parsed_message = _parse_message(input_message)
     category = Categories().get_category(
         parsed_message.category_text)
-    db.insert("expense", {
-        "amount": parsed_message.amount,
-        "created": _get_now_formatted(),
-        "category_codename": category.codename,
-        "raw_text": input_message
-    })
-    return Expense(amount=parsed_message.amount,
-                   category_name=category.name)
+    if category:
+        db.insert("expense", {
+            "amount": parsed_message.amount,
+            "created": _get_now_formatted(),
+            "category_codename": category.codename,
+            "raw_text": input_message
+        })
+        return Expense(amount=parsed_message.amount, category_name=category.name)
+    else:
+        raise exceptions.CategoryNotDefined(f'Unfortunately you cannot submit an expense for category '
+                                            f'{parsed_message.category_text}. \n'
+                                            f'You can check what expense categories available by sending /categories'
+                                            f'to me')
 
 
-def get_remaining_budget() -> str:
+def get_remaining_budget() -> float:
     cursor = db.get_cursor()
     cursor.execute("select sum(e.amount) "
                    "from expense e left join category c "
@@ -69,7 +74,7 @@ def get_remaining_budget() -> str:
     cursor.execute(f"select budget_amount from budget")
     total_budget = cursor.fetchone()
     total_budget = total_budget[0] if total_budget[0] else 0
-    remaining_budget = int(total_budget) - int(result)
+    remaining_budget = float(total_budget) - float(result)
     return remaining_budget
 
 
@@ -117,7 +122,7 @@ def last():
     """Returns a few last expenses"""
     cursor = db.get_cursor()
     cursor.execute(
-        "select e.id, e.amount, c.name "
+        "select e.id, e.amount, c.name, e.created "
         "from expense e left join category c "
         "on c.codename=e.category_codename "
         "order by created desc limit 10")

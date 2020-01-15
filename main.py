@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher, executor, types
 
 import exceptions
 import expenses
+from categories import Categories
 from middlewares import AccessMiddleware
 
 ACCESS_ID = os.getenv("TELEGRAM_ACCESS_ID")
@@ -24,12 +25,12 @@ async def send_welcome(message: types.Message):
     """Send welcome message and help"""
     await message.answer(
         "Hey! I'm Topia expense tracking bot\n\n"
-        "Add an Expense: 250 uber\n"
-        "Today's statistic: /today\n"
-        "Current month statistics: /month\n"
+        "Add an Expense in format: <amount> <category>\n"
+        "For example 50 taxi\n"
         "Latest expenses: /expenses\n"
-        "Categories: /categories\n"
-        "Remaining budget: /remaining")
+        "List of categories available for you: /categories\n"
+        "Remaining budget: /remaining\n"
+        "Summary of your budget: /summary")
 
 
 @dp.message_handler(commands=['expenses'])
@@ -41,7 +42,7 @@ async def list_expenses(message: types.Message):
         return
 
     last_expenses_rows = [
-        f"{row['amount']} EUR on {row['category_name']}"
+        f"{row['amount']} EUR {row['category_name']} on {row['created']}"
         for row in last_expenses]
     answer_message = "Last expenses:\n\n* " + "\n\n* ".join(last_expenses_rows)
     await message.answer(answer_message)
@@ -49,7 +50,16 @@ async def list_expenses(message: types.Message):
 
 @dp.message_handler(commands=['remaining'])
 async def remaining_budget(message: types.Message):
-    answer_message = str(expenses.get_remaining_budget()) + " EUR"
+    # answer_message = None
+    remaining = expenses.get_remaining_budget()
+    if remaining:
+        if remaining > 0:
+            answer_message = f'Your remaining budget is {remaining} + EUR'
+        else:
+            answer_message = f'Your are over budget by {-remaining} + EUR'
+    else:
+        answer_message = "Sorry, couldn't get your remaining budget.\n" \
+                         "Please contact help@topia.com"
     await message.answer(answer_message)
 
 
@@ -79,12 +89,20 @@ async def budget_summary(message: types.Message):
     await message.answer(answer_message)
 
 
+@dp.message_handler(commands=['categories'])
+async def get_categories(message: types.Message):
+    categories = Categories().get_all_categories()
+    answer_message = "Expense categories are:\n\n* " + \
+                     ("\n* ".join([c.name+' ('+", ".join(c.aliases)+')' for c in categories]))
+    await message.answer(answer_message)
+
+
 @dp.message_handler()
 async def add_expense(message: types.Message):
     """Adds new expense"""
     try:
         expense = expenses.add_expense(message.text)
-    except exceptions.InvalidMessage as e:
+    except (exceptions.InvalidMessage, exceptions.CategoryNotDefined) as e:
         await message.answer(str(e))
         return
     answer_message = (

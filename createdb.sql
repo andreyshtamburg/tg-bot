@@ -21,15 +21,15 @@ create table expense(
 
 insert into category (codename, name, inside_budget, aliases)
 values
-    ("REMOVALS", "Household Goods Shipping", true, "hhgs, bolongings shipping"),
-    ("PETS", "Pet Shipping", true, "pet shipping, pets"),
-    ("SERVICEDAPARTMENT", "Temporary Accommodation", true, "temp accommodation, housing, airbnb"),
+    ("REMOVALS", "Household Goods Shipping", true, "hhgs, bolongings shipping, household goods shipping"),
+    ("PETS", "Pet Shipping", true, "pet shipping, pets, pets shipping"),
+    ("SERVICEDAPARTMENT", "Temporary Accommodation", true, "temp accommodation, housing, airbnb, temporary accommodation"),
     ("BROKERFEE", "Broker Fee", true, "broker, broker fee"),
-    ("TRAVEL", "Travel", true, "uber, plane tickets, plane, flights, travel"),
-    ("TAXMEETING", "Tax Return Preparation Assistance", false, "taxes, accountant"),
+    ("TRAVEL", "Travel", true, "uber, plane tickets, plane, flights, travel, taxi, cab"),
+    ("TAXMEETING", "Tax Return Preparation Assistance", false, "taxes, accountant, tax return assistance"),
     ("HOMESEARCH", "Home Search", false, "home search"),
     ("IMMIGRATION", "Immigration", false, "visa, immigration, visa fee"),
-    ("CROSSCULTURALTRAINING", "Cross Cultural Training", false, "cultural training, culture");
+    ("CROSSCULTURALTRAINING", "Cross Cultural Training", false, "cultural training, culture, cross cuclutal training");
 
 
 insert into budget(codename, budget_amount) values ('base', 10000);
