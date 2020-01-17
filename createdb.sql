@@ -1,6 +1,6 @@
 create table budget(
     codename varchar(255) primary key,
-    budget_amount integer
+    budget_amount real
 );
 
 create table category(
@@ -12,8 +12,8 @@ create table category(
 
 create table expense(
     id integer primary key,
-    amount integer,
-    created date,
+    amount real,
+    created datetime,
     category_codename integer,
     raw_text text,
     FOREIGN KEY(category_codename) REFERENCES category(codename)
@@ -21,15 +21,15 @@ create table expense(
 
 insert into category (codename, name, inside_budget, aliases)
 values
-    ("REMOVALS", "Household Goods Shipping", true, "hhgs, bolongings shipping, household goods shipping"),
-    ("PETS", "Pet Shipping", true, "pet shipping, pets, pets shipping"),
-    ("SERVICEDAPARTMENT", "Temporary Accommodation", true, "temp accommodation, housing, airbnb, temporary accommodation"),
-    ("BROKERFEE", "Broker Fee", true, "broker, broker fee"),
-    ("TRAVEL", "Travel", true, "uber, plane tickets, plane, flights, travel, taxi, cab"),
+    ("REMOVALS", "Household Goods Shipping", true, "hhgs, bolongings shipping, goods shipping, sending belongings"),
+    ("PETS", "Pet Shipping", true, "pet shipping, pets shipping"),
+    ("SERVICEDAPARTMENT", "Temporary Accommodation", true, "temp accommodation, housing, airbnb"),
+    ("BROKERFEE", "Broker Fee", true, "broker fee"),
+    ("TRAVEL", "Travel", true, "plane tickets, flights, travel, taxi, cab, uber, bolt, lyft"),
     ("TAXMEETING", "Tax Return Preparation Assistance", false, "taxes, accountant, tax return assistance"),
-    ("HOMESEARCH", "Home Search", false, "home search"),
-    ("IMMIGRATION", "Immigration", false, "visa, immigration, visa fee"),
-    ("CROSSCULTURALTRAINING", "Cross Cultural Training", false, "cultural training, culture, cross cuclutal training");
+    ("HOMESEARCH", "Home Search", false, "home search, house search"),
+    ("IMMIGRATION", "Immigration", false, "immigration, visa fee"),
+    ("CROSSCULTURALTRAINING", "Cross Cultural Training", false, "culture, cross cuclutal training");
 
 
-insert into budget(codename, budget_amount) values ('base', 10000);
+insert into budget(codename, budget_amount) values ('budget', 10000);

@@ -1,6 +1,7 @@
 import datetime
 import re
-from typing import NamedTuple, List, Dict
+from typing import NamedTuple
+
 
 import pytz
 
@@ -20,13 +21,14 @@ class Message(NamedTuple):
 
 
 def _parse_message(input_message):
-    regexp_result = re.match(r"([\d ]+) (.*)", input_message)
+    regexp_result = re.match(r"[-+]?([0-9]*\.[0-9]+|[0-9]+) (.*)", input_message)
     if not regexp_result or not regexp_result.group(0) \
             or not regexp_result.group(1) or not regexp_result.group(2):
         raise exceptions.InvalidMessage(
             "Sorry, don't understand the message. "
-            "Please enter is in the following format: "
-            "\n200 taxi")
+            "Please enter it in the following format:\n"
+            "<amount> <category>\n"
+            "For example: 850 flights")
 
     amount = regexp_result.group(1).replace(" ", "")
     category_text = regexp_result.group(2).strip().lower()
@@ -34,7 +36,7 @@ def _parse_message(input_message):
 
 
 def _get_now_formatted() -> str:
-    return _get_now_datetime().strftime("%Y-%m-%d")
+    return _get_now_datetime().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def _get_now_datetime():
@@ -58,8 +60,8 @@ def add_expense(input_message: str) -> Expense:
         return Expense(amount=parsed_message.amount, category_name=category.name)
     else:
         raise exceptions.CategoryNotDefined(f'Unfortunately you cannot submit an expense for category '
-                                            f'{parsed_message.category_text}. \n'
-                                            f'You can check what expense categories available by sending /categories'
+                                            f'`{parsed_message.category_text}`. \n'
+                                            f'You can check what expense categories available by sending /categories\n'
                                             f'to me')
 
 
@@ -75,7 +77,7 @@ def get_remaining_budget() -> float:
     total_budget = cursor.fetchone()
     total_budget = total_budget[0] if total_budget[0] else 0
     remaining_budget = float(total_budget) - float(result)
-    return remaining_budget
+    return round(remaining_budget, 2)
 
 
 def get_all_expenses_inside_budget():
@@ -89,7 +91,6 @@ def get_all_expenses_inside_budget():
     rows = cursor.fetchall()
     expenses_in_budget = []
     for row in rows:
-        print(row)
         expenses_in_budget.append({
             'amount': row[1],
             'id': row[0],
@@ -132,7 +133,8 @@ def last():
         last_expenses.append({
             'amount': row[1],
             'id': row[0],
-            'category_name': row[2]
+            'category_name': row[2],
+            'created': row[3]
         })
     return last_expenses
 
@@ -143,3 +145,8 @@ def get_total_budget():
         "select budget_amount from budget")
     result = cursor.fetchone()
     return result[0]
+
+
+def delete_expense(row_id: int) -> None:
+    """Deletes an expense by its id"""
+    db.delete("expense", row_id)

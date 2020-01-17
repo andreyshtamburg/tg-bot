@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher, executor, types
 
@@ -33,6 +34,15 @@ async def send_welcome(message: types.Message):
         "Summary of your budget: /summary")
 
 
+@dp.message_handler(lambda message: message.text.startswith('/del'))
+async def del_expense(message: types.Message):
+    """Deletes expense record by its id"""
+    row_id = int(message.text[4:])
+    expenses.delete_expense(row_id)
+    answer_message = "Removed"
+    await message.answer(answer_message)
+
+
 @dp.message_handler(commands=['expenses'])
 async def list_expenses(message: types.Message):
     """Send a few last expenses"""
@@ -42,7 +52,9 @@ async def list_expenses(message: types.Message):
         return
 
     last_expenses_rows = [
-        f"{row['amount']} EUR {row['category_name']} on {row['created']}"
+        f"{row['amount']} EUR {row['category_name']} on "
+        f"{datetime.strftime(datetime.strptime(row['created'], '%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')} - click "
+        f"/del{row['id']} in order to remove"
         for row in last_expenses]
     answer_message = "Last expenses:\n\n* " + "\n\n* ".join(last_expenses_rows)
     await message.answer(answer_message)
@@ -50,13 +62,12 @@ async def list_expenses(message: types.Message):
 
 @dp.message_handler(commands=['remaining'])
 async def remaining_budget(message: types.Message):
-    # answer_message = None
     remaining = expenses.get_remaining_budget()
     if remaining:
         if remaining > 0:
-            answer_message = f'Your remaining budget is {remaining} + EUR'
+            answer_message = f'Your remaining budget is {remaining} EUR'
         else:
-            answer_message = f'Your are over budget by {-remaining} + EUR'
+            answer_message = f'Your are over budget by {-remaining} EUR'
     else:
         answer_message = "Sorry, couldn't get your remaining budget.\n" \
                          "Please contact help@topia.com"
