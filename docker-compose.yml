@@ -6,5 +6,5 @@ services:
     container_name: topia-bot
     restart: on-failure
     environment:
-      - TELEGRAM_API_TOKEN=1008447247:AAFRJio0ilWbFdh66i-ICwk09bXqJjhHCkA
-      - TELEGRAM_ACCESS_ID=382850832
+      - TELEGRAM_API_TOKEN=
+      - TELEGRAM_ACCESS_ID=
