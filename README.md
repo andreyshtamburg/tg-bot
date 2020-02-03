@@ -6,3 +6,5 @@ Find @userinfobot and start conversation with it.
 `vspolam/python3.7-base` is an image provided by Surendra Polam (`@suru33` on TG) with sqlite already installed 
 
 At the start point db populates with predefined budget group and services inside/outside budget
+
+In order to start app, run `docker-compose up --build` from the directory with `docker-compose.yml`
